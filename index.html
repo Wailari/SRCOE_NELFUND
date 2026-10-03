@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SRCOE NELFUND Onboard System</title>
+<style>
+:root{
+  --primary:#0b3d91;
+  --primary-2:#2563eb;
+  --accent:#16a34a;
+  --bg:#f4f6fb;
+  --surface:#ffffff;
+  --surface-2:#eef3ff;
+  --text:#172033;
+  --muted:#667085;
+  --border:#d8dee9;
+  --danger:#dc2626;
+  --shadow:0 10px 30px rgba(16,24,40,.08);
+}
+[data-theme="green"]{--primary:#087f3f;--primary-2:#10a85a;--accent:#087f3f;--surface-2:#eaf8ef}
+[data-theme="purple"]{--primary:#6d28d9;--primary-2:#8b5cf6;--accent:#7c3aed;--surface-2:#f1eaff}
+[data-theme="red"]{--primary:#b91c1c;--primary-2:#ef4444;--accent:#dc2626;--surface-2:#fff0f0}
+[data-theme="dark"]{
+  --primary:#4f8cff;--primary-2:#6ea0ff;--accent:#5bd68b;
+  --bg:#0f172a;--surface:#172033;--surface-2:#202c42;
+  --text:#f1f5f9;--muted:#aab5c7;--border:#344158;
+  --shadow:0 10px 30px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;font-family:Inter,Arial,Helvetica,sans-serif;
+  background:var(--bg);color:var(--text);transition:.25s;
+}
+button,input,select{font:inherit}
+button{border:0;cursor:pointer}
+a{color:inherit}
+.hidden{display:none!important}
+
+header{
+  position:sticky;top:0;z-index:1000;
+  background:var(--primary);color:#fff;
+  box-shadow:0 3px 15px rgba(0,0,0,.15);
+}
+.header-inner{
+  max-width:1450px;margin:auto;padding:12px 18px;
+  display:flex;align-items:center;justify-content:space-between;gap:15px;
+}
+.brand{font-size:1.05rem;font-weight:800;white-space:nowrap}
+nav{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+nav a{
+  color:#fff;text-decoration:none;padding:9px 11px;border-radius:8px;
+  cursor:pointer;font-size:.92rem;
+}
+nav a:hover{background:rgba(255,255,255,.15)}
+.theme-select{
+  width:auto!important;padding:7px 9px!important;
+  border-radius:8px;border:1px solid rgba(255,255,255,.3);
+  background:rgba(255,255,255,.12);color:#fff;
+}
+.theme-select option{color:#111;background:#fff}
+
+.container{max-width:1450px;margin:auto;padding:24px 18px;min-height:70vh}
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:22px;box-shadow:var(--shadow);
+}
+.hero{
+  min-height:58vh;display:grid;place-items:center;text-align:center;
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--surface),var(--surface-2));
+}
+.hero-slides{position:absolute;inset:0;z-index:0}
+.hero-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.2s ease}
+.hero-slide.active{opacity:1}
+.hero-slides::after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.52),rgba(0,0,0,.58))}
+.hero-content{max-width:800px;position:relative;z-index:1;color:#fff;padding:20px}
+.hero h1{font-size:clamp(1.8rem,4vw,3.2rem);margin:0 0 12px}
+.hero p{color:#fff;font-size:1.05rem;line-height:1.7}
+.hero .badge{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.35)}
+.hero .btn.light{background:rgba(255,255,255,.9);color:#172033}
+.hero-dots{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:2;display:flex;gap:7px}
+.hero-dot{width:9px;height:9px;border-radius:50%;padding:0;background:rgba(255,255,255,.55)}
+.hero-dot.active{background:#fff;transform:scale(1.2)}
+.badge{
+  display:inline-block;padding:6px 10px;border-radius:999px;
+  background:var(--surface-2);color:var(--primary);font-weight:700;font-size:.8rem;
+}
+.dashboard{
+  display:flex;align-items:center;justify-content:space-between;gap:15px;
+  flex-wrap:wrap;background:var(--surface-2);padding:14px;border-radius:12px;
+  margin-bottom:15px;border:1px solid var(--border);
+}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{
+  background:var(--primary);color:#fff;padding:9px 13px;border-radius:8px;
+  font-weight:700;transition:.2s;
+}
+.btn:hover{background:var(--primary-2);transform:translateY(-1px)}
+.btn.secondary{background:#64748b}.btn.success{background:#15803d}
+.btn.danger{background:var(--danger)}.btn.warning{background:#d97706}
+.btn.light{background:var(--surface-2);color:var(--text);border:1px solid var(--border)}
+
+.table-wrap{
+  width:100%;overflow:auto;border:1px solid var(--border);
+  border-radius:12px;background:var(--surface);
+}
+table{width:100%;min-width:1450px;border-collapse:collapse}
+th,td{
+  border-bottom:1px solid var(--border);padding:8px;text-align:center;
+  vertical-align:middle;white-space:nowrap;
+}
+th{
+  background:var(--primary);color:#fff;position:sticky;top:0;z-index:2;
+}
+tr:nth-child(even) td{background:rgba(127,127,127,.035)}
+input,select{
+  width:100%;min-width:100px;padding:8px;border:1px solid var(--border);
+  border-radius:7px;background:var(--surface);color:var(--text);outline:none;
+}
+input:focus,select:focus{border-color:var(--primary-2);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.table-action{display:flex;gap:5px;justify-content:center}
+.table-action button{padding:6px 8px;border-radius:6px;color:#fff}
+.edit-btn{background:#2563eb}.delete-btn{background:#dc2626}
+
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.58);z-index:2000;
+  display:none;align-items:center;justify-content:center;padding:18px;
+}
+.modal.show{display:flex}
+.modal-box{
+  width:min(460px,100%);max-height:90vh;overflow:auto;
+  background:var(--surface);color:var(--text);border-radius:16px;padding:24px;
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+}
+.modal-box h2{margin-top:0}
+.form-group{margin-bottom:13px}
+.form-group label{display:block;font-weight:700;margin-bottom:6px}
+.close-row{display:flex;justify-content:flex-end}
+.error{color:#dc2626;font-size:.9rem;margin:8px 0}
+.success-msg{color:#15803d;font-size:.9rem;margin:8px 0}
+
+.stats{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:15px 0;
+}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px}
+.stat small{color:var(--muted)}.stat strong{display:block;font-size:1.5rem;margin-top:5px}
+
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.muted{color:var(--muted)}
+.empty{text-align:center;padding:25px;color:var(--muted)}
+
+footer{
+  background:var(--primary);color:#fff;text-align:center;padding:18px;margin-top:30px;
+}
+footer small{opacity:.9}
+
+@media(max-width:900px){
+  .header-inner{align-items:flex-start;flex-direction:column}
+  nav{width:100%;overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}
+  nav a{flex:0 0 auto}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px){
+  .container{padding:14px 10px}
+  .card{padding:14px}
+  .stats{grid-template-columns:1fr 1fr}
+  .stat strong{font-size:1.2rem}
+  .dashboard{align-items:stretch}
+  .dashboard .actions,.dashboard .actions .btn{width:100%}
+  .dashboard .actions{display:grid;grid-template-columns:1fr 1fr}
+  .hero{min-height:55vh}
+}
+@media(max-width:420px){
+  .stats{grid-template-columns:1fr}
+  .dashboard .actions{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="header-inner">
+    <div class="brand">SRCOE NELFUND Onboard System</div>
+    <nav>
+      <a onclick="showPage('home')">Home</a>
+      <a onclick="openAdminLogin()">Admin Login</a>
+      <a onclick="startOffload()">Upload Student</a>
+      <select id="themeSelect" class="theme-select" onchange="changeTheme(this.value)" aria-label="Choose theme">
+        <option value="default">Dark Mode</option> 
+        <option value="green">Green</option>
+        <option value="purple">Purple</option>
+        <option value="red">Red</option>
+        <option value="blue">Blue</option>
+      </select>
+    </nav>
+  </div>
+</header>
+
+<div class="container">
+  <section id="home">
+    <div class="card hero">
+      <div class="hero-slides" aria-hidden="true">
+        <div class="hero-slide active" style="background-image:url(logo1.jpg)"></div>
+        <div class="hero-slide" style="background-image:url(logo2.jpg)"></div>
+        <div class="hero-slide" style="background-image:url(logo8.jpg)"></div>
+        <div class="hero-slide" style="background-image:url(logo5.jpg)"></div>
+      </div>
+      <div class="hero-content">
+        <span class="badge">SRCOE • NELFUND</span>
+        <h1>Student Onboarding System</h1>
+        <p>Welcome to the student onboarding platform. Students can enter their records, save their progress and download their submitted information as an Excel file.</p>
+        <div class="actions" style="justify-content:center">
+          <button class="btn" onclick="startOffload()">Upload Student</button>
+          <button class="btn light" onclick="openAdminLogin()">Admin Login</button>
+        </div>
+      </div>
+      <div class="hero-dots">
+        <button class="hero-dot active" onclick="showHeroSlide(0)"></button>
+        <button class="hero-dot" onclick="showHeroSlide(1)"></button>
+        <button class="hero-dot" onclick="showHeroSlide(2)"></button>
+        <button class="hero-dot" onclick="showHeroSlide(3)"></button>
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="hidden">
+    <div class="card"><h2>About</h2><p class="muted">Student onboarding platform for collecting and managing student information.</p></div>
+  </section>
+
+  <section id="services" class="hidden">
+    <div class="card"><h2>Services</h2><p class="muted">Student data onboarding, progress saving, Excel export and administrative management.</p></div>
+  </section>
+
+  <section id="contact" class="hidden">
+    <div class="card"><h2>Contact</h2><p class="muted">nazifi2308@gmail.com</p></div>
+  </section>
+
+  <section id="offload" class="hidden">
+    <div class="dashboard">
+      <div><b>User:</b> <span id="username"></span></div>
+      <div class="actions">
+        <button class="btn secondary" onclick="clearActivity()">Clear My Data</button>
+        <button class="btn light" onclick="showPage('home')">Logout</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">
+        <div><h2 style="margin:0">Student Records</h2><div class="muted">Add or edit your student information below.</div></div>
+        <div class="actions">
+          <button class="btn" onclick="addStudent()">Add Student</button>
+          <button class="btn success" onclick="saveData()">Save Progress</button>
+          <button class="btn warning" onclick="downloadCurrentUserExcel()">Download My Excel</button>
+        </div>
+      </div>
+      <div class="table-wrap" style="margin-top:15px">
+        <table id="studentTable">
+          <thead><tr>
+            <th>Reg No</th><th>First Name</th><th>Last Name</th><th>Other Name</th><th>Gender</th>
+            <th>State</th><th>LGA</th><th>Level</th><th>JAMB</th><th>Phone</th><th>Program</th>
+            <th>Department</th><th>Faculty</th><th>Duration</th><th>Fees</th><th>Session</th><th>Action</th>
+          </tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="admin" class="hidden">
+    <div class="card">
+      <div class="dashboard">
+        <div><b>Administrator:</b> <span id="adminName">Admin</span></div>
+        <div class="actions">
+          <button class="btn light" onclick="showPage('home')">Exit Admin</button>
+        </div>
+      </div>
+      <h2>Admin Dashboard</h2>
+      <p class="muted">Manage submitted users,Review access/offload activity.</p>
+
+      <div class="stats">
+        <div class="stat"><small>Users</small><strong id="statUsers">0</strong></div>
+        <div class="stat"><small>Student Records</small><strong id="statStudents">0</strong></div>
+        <div class="stat"><small>Access Events</small><strong id="statAccess">0</strong></div>
+        <div class="stat"><small>Offload Events</small><strong id="statOffload">0</strong></div>
+      </div>
+
+      <div class="section-title">
+        <h3>Submitted Students</h3>
+        <button class="btn success" onclick="downloadAllUsersSummary()">Download Users Summary</button>
+      </div>
+      <div class="table-wrap">
+        <table style="min-width:850px">
+          <thead><tr><th>Username</th><th>Records</th><th>Last Activity</th><th>Actions</th></tr></thead>
+          <tbody id="adminUsersRows"></tbody>
+        </table>
+      </div>
+
+      <div class="section-title" style="margin-top:25px">
+        <h3>Access / Offload Activity Log</h3>
+        <button class="btn danger" onclick="clearAdminLogs()">Clear Logs</button>
+      </div>
+      <div class="table-wrap">
+        <table style="min-width:800px">
+          <thead><tr><th>Date & Time</th><th>Username</th><th>Activity</th><th>Details</th></tr></thead>
+          <tbody id="activityRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer><b>SRCOE NELFUND Onboard System</b><br><small>© 2026</small></footer>
+
+<!-- Student username modal -->
+<div id="usernameModal" class="modal">
+  <div class="modal-box">
+    <div class="close-row"><button class="btn danger" onclick="closeModal('usernameModal')">Close</button></div>
+    <h2>Student Upload</h2>
+    <p class="muted">Enter a username. This username is used to save and identify your submitted records.</p>
+    <div class="form-group"><label>Username</label><input id="studentUsernameInput" autocomplete="username" placeholder="e.g. Abbalele"></div>
+    <div id="usernameError" class="error"></div>
+    <button class="btn" style="width:100%" onclick="confirmStudentUsername()">Continue</button>
+  </div>
+</div>
+
+<!-- Admin login modal -->
+<div id="adminLoginModal" class="modal">
+  <div class="modal-box">
+    <div class="close-row"><button class="btn danger" onclick="closeModal('adminLoginModal')">Close</button></div>
+    <h2>Admin Login</h2>
+    <p class="muted">Authorized administrator access.</p>
+    <div class="form-group"><label>Username</label><input id="adminUsername" autocomplete="username"></div>
+    <div class="form-group"><label>Password</label><input id="adminPassword" type="password" autocomplete="current-password"></div>
+    <div id="adminError" class="error"></div>
+    <button class="btn" style="width:100%" onclick="adminLogin()">Login</button>
+    <p class="muted" style="font-size:.82rem;margin-bottom:0">my admin: <b>admin</b> / <b>SRCOE@2026</b></p>
+  </div>
+</div>
+
+<!-- Admin record modal -->
+<div id="recordsModal" class="modal">
+  <div class="modal-box" style="width:min(1100px,100%)">
+    <div class="close-row"><button class="btn danger" onclick="closeModal('recordsModal')">Close</button></div>
+    <h2 id="recordsTitle">User Records</h2>
+    <div class="actions" style="margin-bottom:12px">
+      <button class="btn success" id="downloadUserBtn">Download Excel</button>
+    </div>
+    <div class="table-wrap">
+      <table style="min-width:1500px">
+        <thead><tr>
+          <th>Reg No</th><th>First Name</th><th>Last Name</th><th>Other Name</th><th>Gender</th>
+          <th>State</th><th>LGA</th><th>Level</th><th>JAMB</th><th>Phone</th><th>Program</th>
+          <th>Department</th><th>Faculty</th><th>Duration</th><th>Fees</th><th>Session</th><th>Action</th>
+        </tr></thead>
+        <tbody id="adminRecordsRows"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<script>
+const ADMIN_USERNAME = "profileadmin@srcoe.edu.ng";
+const ADMIN_PASSWORD = "12345678";
+const STORAGE_PREFIX = "nelfund_";
+const LOG_KEY = "nelfund_activity_log";
+let currentUser = "";
+let adminLoggedIn = false;
+let selectedAdminUser = "";
+
+const headers = [
+  "Registration/Matric Number","First Name","Last Name","Other Name","Gender",
+  "State of Origin","Lga","Level","Jamb Number","Phone Number","Program",
+  "Department","Faculty","Duration of Course","Total Fees","Academic Session"
+];
+
+const feeLevels = {
+  ONE:["49000","109000","44000","104000","58000","118000","53000","113000"],
+  TWO:["45000","105000","40000","100000","51000","111000","46000","106000"],
+  THREE:["45000","105000","40000","100000","51000","111000","46000","106000"],
+  FOUR:["45000","105000","40000","100000","51000","111000","46000","106000"],
+  FIVE:["45000","105000","40000","100000","51000","111000","46000","106000"],
+  SIX:["45000","105000","40000","100000","51000","111000","46000","106000"]
+};
+
+const programs = [
+"NCE Adult and Non-Formal Education (DM)","NCE Special Education/ENGLISH","NCE Special Education/Social Studies",
+"NCE Special Education/Islamic studies","NCE Early childhood care education (DM)","NCE Primary Education Studies",
+"NCE Adult and Non-Formal Education","NCE English/Arabic","NCE English/Economics","NCE English/Geography",
+"NCE English/Hausa","NCE English/History","NCE English/Islamic Studies","NCE English/Social Studies","NCE Hausa/Arabic",
+"NCE Hausa/Islamic Studies","NCE ARABIC MEDIUM","NCE Biology/Chemistry","NCE Biology/Geography","NCE Biology/Integrated Science",
+"NCE Biology/Physics","NCE Chemistry/Biology","NCE Computer/Biology","NCE Computer/Chemistry","NCE Computer/Mathematics",
+"NCE Computer/Physics","NCE Integrated Science/Biology","NCE Integrated Science/Chemistry","NCE Integrated Science/Computer",
+"NCE Integrated Science (DM)","NCE Integrated Science/Geography","NCE Mathematics/Biology","NCE Mathematics/Geography",
+"NCE Mathematics/Physics","NCE Physical and Health Education","NCE Physics/Chemistry","NCE Physics/Geography",
+"NCE Economics/English","NCE Economics/Geography","NCE Economics/Social Studies","NCE Hausa/English","NCE Hausa/Social studies",
+"NCE History/English","NCE History/Islamic Studies","NCE History/Social Studies","NCE History/Economics","NCE History/Geography",
+"NCE Arabic/Islamic Studies","NCE Geography/Social studies","NCE Islamic Studies/English","NCE Islamic Studies/Hausa",
+"NCE Islamic Studies/Social Studies","NCE Social Studies (DM)","NCE Social Studies/Economics","NCE Social Studies/Hausa",
+"NCE Agricultural Science (DM)","NCE BUSINESS EDUCATION (DM)","NCE Fine and Applied Art (DM)","NCE Home Economics (DM)",
+"NCE Technical Education","B.Sc. (Ed) Agricultural Science","B. A. (Ed) Arabic","B.Sc. (Ed) Biology","B. Sc. (Ed) Business Education",
+"B.Sc. (Ed) Chemistry","B. A. (Ed) English","B. Sc. (Ed) Geography","B. Sc. (Ed) Health Education","B. Sc. (Ed) Home Economics",
+"B. Sc. (Ed) Human Kinetics","B. Sc. (Ed) Integrated Science","B. A. (Ed) Islamic Studies","B. A. (Ed) Social Studies"
+];
+const departments = [
+"NCE Adult and Non-Formal Education(DM)","Special Education","ECCE","Primary Education Studies","ANF","EECE","English","Hausa",
+"ARABIC","Biology","Chemistry","Computer","Integrated Science","Mathematics","Physical and Health Education","Physics","Economics",
+"HAUSA","History","Islamic Studies","Social Studies","Agricultural Science","Business Education","FAA","Home Economics","Technical Education",
+"Agricultural Science","Arabic","Biology","Business Education","Chemistry","English","Geography","Health Education","Home Economics",
+"Human Kinetics","Integrated Science","Islamic Studies","Social Studies"
+];
+const faculties = [
+"School of ANF and Special Education","School of ECCE and PES","School of Education","School of Languages",
+"School of Science Education","School of Secondary Education","School of Vocational and Technical Education","Education"
+];
+
+function escapeHtml(value){
+  return String(value ?? "").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+function showPage(id){
+  document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
+  const el=document.getElementById(id); if(el) el.classList.remove("hidden");
+  if(id==="admin" && adminLoggedIn) refreshAdmin();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function openModal(id){document.getElementById(id).classList.add("show")}
+function closeModal(id){document.getElementById(id).classList.remove("show")}
+
+function changeTheme(theme){
+  if(theme==="default") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme",theme);
+  localStorage.setItem("nelfund_theme",theme);
+}
+(function initTheme(){
+  const theme=localStorage.getItem("nelfund_theme")||"default";
+  document.getElementById("themeSelect").value=theme;
+  changeTheme(theme);
+})();
+
+function logActivity(username,activity,details=""){
+  const logs=JSON.parse(localStorage.getItem(LOG_KEY)||"[]");
+  logs.unshift({time:new Date().toLocaleString(),username,activity,details});
+  localStorage.setItem(LOG_KEY,JSON.stringify(logs.slice(0,1000)));
+}
+function getLogs(){return JSON.parse(localStorage.getItem(LOG_KEY)||"[]")}
+
+function startOffload(){
+  document.getElementById("studentUsernameInput").value="";
+  document.getElementById("usernameError").textContent="";
+  openModal("usernameModal");
+}
+function confirmStudentUsername(){
+  const name=document.getElementById("studentUsernameInput").value.trim();
+  if(!name){document.getElementById("usernameError").textContent="Please enter a username.";return}
+  if(name.length>50){document.getElementById("usernameError").textContent="Username is too long.";return}
+  currentUser=name;
+  document.getElementById("username").textContent=name;
+  closeModal("usernameModal");
+  showPage("offload");
+  document.getElementById("rows").innerHTML="";
+  loadSaved();
+  logActivity(name,"User accessed onboarding","Opened student upload area");
+  if(document.querySelectorAll("#rows tr").length===0) addStudent();
+}
+
+function clearActivity(){
+  if(!currentUser)return;
+  if(confirm("Delete all saved student data for this username? This cannot be undone.")){
+    localStorage.removeItem(STORAGE_PREFIX+currentUser);
+    document.getElementById("rows").innerHTML="";
+    addStudent();
+    logActivity(currentUser,"Deleted own saved data","User cleared all records");
+  }
+}
+
+function optionList(items,selected=""){
+  return '<option value="">Select</option>'+items.map(x=>`<option ${x===selected?"selected":""}>${escapeHtml(x)}</option>`).join("");
+}
+function levelOptions(selected="ONE"){
+  return ["ONE","TWO","THREE","FOUR","FIVE","SIX"].map(x=>`<option ${x===selected?"selected":""}>${x}</option>`).join("");
+}
+function feeOptions(level="ONE",selected=""){
+  return feeLevels[level].map(f=>`<option value="${f}" ${f===selected?"selected":""}>${f}</option>`).join("");
+}
+function addStudent(values=null){
+  const tr=document.createElement("tr");
+  const v=values||Array(16).fill("");
+  const level=v[7]||"ONE";
+  tr.innerHTML=`
+    <td><input value="${escapeHtml(v[0])}"></td>
+    <td><input value="${escapeHtml(v[1])}"></td>
+    <td><input value="${escapeHtml(v[2])}"></td>
+    <td><input value="${escapeHtml(v[3])}"></td>
+    <td><select><option ${v[4]==="Male"?"selected":""}>Male</option><option ${v[4]==="Female"?"selected":""}>Female</option></select></td>
+    <td><input value="${escapeHtml(v[5])}"></td>
+    <td><input value="${escapeHtml(v[6])}"></td>
+    <td><select onchange="updateFee(this)">${levelOptions(level)}</select></td>
+    <td><input value="${escapeHtml(v[8])}"></td>
+    <td><input value="${escapeHtml(v[9])}"></td>
+    <td><select class="program">${optionList(programs,v[10])}</select></td>
+    <td><select class="department">${optionList(departments,v[11])}</select></td>
+    <td><select class="faculty">${optionList(faculties,v[12])}</select></td>
+    <td><input value="3 YEARS" readonly></td>
+    <td><select class="fee">${feeOptions(level,v[14])}</select></td>
+    <td><select><option ${v[15]==="2026/2027"||!v[15]?"selected":""}>2026/2027</option></select></td>
+    <td><div class="table-action"><button class="delete-btn" onclick="deleteStudentRow(this)">Delete</button></div></td>`;
+  document.getElementById("rows").appendChild(tr);
+  updateFee(tr.querySelector("td:nth-child(8) select"),v[14]);
+}
+function updateFee(el,selected=""){
+  const row=el.closest("tr");
+  const level=el.value;
+  const feeSelect=row.querySelector(".fee");
+  feeSelect.innerHTML=feeOptions(level,selected||feeSelect.value);
+}
+function deleteStudentRow(btn){
+  if(confirm("Delete this student row?")) btn.closest("tr").remove();
+}
+function collectRows(containerSelector="#rows tr"){
+  const data=[];
+  document.querySelectorAll(containerSelector).forEach(r=>{
+    const values=[...r.querySelectorAll("input,select")].map(i=>i.value);
+    if(values.slice(0,16).some(v=>v!=="")) data.push(values.slice(0,16));
+  });
+  return data;
+}
+function saveData(){
+  if(!currentUser)return;
+  const data=collectRows();
+  localStorage.setItem(STORAGE_PREFIX+currentUser,JSON.stringify(data));
+  logActivity(currentUser,"Saved student data",`${data.length} record(s)`);
+  alert("Progress saved successfully.");
+}
+function loadSaved(){
+  const saved=localStorage.getItem(STORAGE_PREFIX+currentUser);
+  if(!saved)return;
+  try{
+    const data=JSON.parse(saved);
+    data.forEach(d=>addStudent(d));
+  }catch(e){console.error(e)}
+}
+
+function makeWorkbook(data){
+  const ws=XLSX.utils.aoa_to_sheet([headers,...data]);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,"Students");
+  return wb;
+}
+function safeFilename(name){
+  return String(name).replace(/[\\/:*?"<>|]/g,"_").trim()||"student";
+}
+function downloadCurrentUserExcel(){
+  if(!currentUser)return;
+  const data=collectRows();
+  const wb=makeWorkbook(data);
+  XLSX.writeFile(wb,safeFilename(currentUser)+".xlsx");
+  logActivity(currentUser,"Downloaded Excel",`File: ${safeFilename(currentUser)}.xlsx`);
+}
+function downloadUserExcel(username){
+  const data=JSON.parse(localStorage.getItem(STORAGE_PREFIX+username)||"[]");
+  const wb=makeWorkbook(data);
+  XLSX.writeFile(wb,safeFilename(username)+".xlsx");
+  logActivity(ADMIN_USERNAME,"Admin downloaded Excel",`User: ${username}; File: ${safeFilename(username)}.xlsx`);
+  refreshAdmin();
+}
+function getUsernames(){
+  const users=[];
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i);
+    if(key && key.startsWith(STORAGE_PREFIX) && key!==LOG_KEY){
+      const username=key.slice(STORAGE_PREFIX.length);
+      if(username && username!=="" && username!=="activity_log") users.push(username);
+    }
+  }
+  return users.sort((a,b)=>a.localeCompare(b));
+}
+function getUserData(username){
+  try{return JSON.parse(localStorage.getItem(STORAGE_PREFIX+username)||"[]")}catch(e){return []}
+}
+
+function openAdminLogin(){
+  document.getElementById("adminUsername").value="";
+  document.getElementById("adminPassword").value="";
+  document.getElementById("adminError").textContent="";
+  openModal("adminLoginModal");
+}
+function adminLogin(){
+  const u=document.getElementById("adminUsername").value.trim();
+  const p=document.getElementById("adminPassword").value;
+  if(u===ADMIN_USERNAME && p===ADMIN_PASSWORD){
+    adminLoggedIn=true;
+    closeModal("adminLoginModal");
+    document.getElementById("adminName").textContent=u;
+    logActivity(u,"Admin login","Administrator entered the dashboard");
+    showPage("admin");
+  }else{
+    document.getElementById("adminError").textContent="Invalid admin username or password.";
+    logActivity(u||"Unknown","Failed admin login","Invalid credentials");
+  }
+}
+
+function refreshAdmin(){
+  if(!adminLoggedIn)return;
+  const users=getUsernames();
+  const logs=getLogs();
+  let total=0;
+  users.forEach(u=>total+=getUserData(u).length);
+  document.getElementById("statUsers").textContent=users.length;
+  document.getElementById("statStudents").textContent=total;
+  document.getElementById("statAccess").textContent=logs.filter(x=>/access|login/i.test(x.activity)).length;
+  document.getElementById("statOffload").textContent=logs.filter(x=>/offload|saved|downloaded/i.test(x.activity)).length;
+
+  const ur=document.getElementById("adminUsersRows");
+  ur.innerHTML="";
+  if(!users.length){
+    ur.innerHTML='<tr><td colspan="4" class="empty">No submitted users found.</td></tr>';
+  }else{
+    users.forEach(u=>{
+      const data=getUserData(u);
+      const userLogs=logs.filter(x=>x.username===u);
+      const last=userLogs.length?userLogs[0].time:"No activity";
+      const tr=document.createElement("tr");
+      tr.innerHTML=`<td><b>${escapeHtml(u)}</b></td><td>${data.length}</td><td>${escapeHtml(last)}</td>
+        <td><div class="actions" style="justify-content:center">
+        <button class="btn" onclick="viewUserRecords('${encodeURIComponent(u)}')">View/Edit</button>
+        <button class="btn success" onclick="downloadUserExcel('${encodeURIComponent(u)}')">Excel</button>
+        <button class="btn danger" onclick="deleteUser('${encodeURIComponent(u)}')">Delete</button>
+        </div></td>`;
+      ur.appendChild(tr);
+    });
+  }
+
+  const ar=document.getElementById("activityRows");
+  ar.innerHTML="";
+  if(!logs.length) ar.innerHTML='<tr><td colspan="4" class="empty">No activity recorded.</td></tr>';
+  else logs.forEach(l=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${escapeHtml(l.time)}</td><td>${escapeHtml(l.username)}</td><td>${escapeHtml(l.activity)}</td><td>${escapeHtml(l.details)}</td>`;
+    ar.appendChild(tr);
+  });
+}
+function viewUserRecords(encoded){
+  const username=decodeURIComponent(encoded);
+  selectedAdminUser=username;
+  document.getElementById("recordsTitle").textContent=`Records: ${username}`;
+  renderAdminRecords();
+  document.getElementById("downloadUserBtn").onclick=()=>downloadUserExcel(username);
+  openModal("recordsModal");
+  logActivity(ADMIN_USERNAME,"Admin viewed user","User: "+username);
+  refreshAdmin();
+}
+function renderAdminRecords(){
+  const rows=document.getElementById("adminRecordsRows");
+  rows.innerHTML="";
+  const data=getUserData(selectedAdminUser);
+  if(!data.length){rows.innerHTML='<tr><td colspan="17" class="empty">No records for this user.</td></tr>';return}
+  data.forEach((d,index)=>{
+    const tr=document.createElement("tr");
+    for(let i=0;i<16;i++){
+      const td=document.createElement("td");
+      if(i===4 || i===7 || i===10 || i===11 || i===12 || i===14 || i===15){
+        const s=document.createElement("select");
+        let opts=[];
+        if(i===4) opts=["Male","Female"];
+        if(i===7) opts=["ONE","TWO","THREE","FOUR","FIVE","SIX"];
+        if(i===10) opts=programs;
+        if(i===11) opts=departments;
+        if(i===12) opts=faculties;
+        if(i===14) opts=feeLevels[d[7]||"ONE"];
+        if(i===15) opts=["2026/2027"];
+        s.innerHTML=opts.map(x=>`<option ${String(x)===String(d[i])?"selected":""}>${escapeHtml(x)}</option>`).join("");
+        if(i===7) s.onchange=()=>{d[7]=s.value; d[14]=feeLevels[s.value][0]; renderAdminRecords()};
+        if(i===14) s.onchange=()=>{d[14]=s.value};
+        s.oninput=()=>{d[i]=s.value};
+        td.appendChild(s);
+      }else{
+        const inp=document.createElement("input");
+        inp.value=d[i]||"";
+        inp.readOnly=(i===13);
+        inp.oninput=()=>{d[i]=inp.value};
+        td.appendChild(inp);
+      }
+      tr.appendChild(td);
+    }
+    const action=document.createElement("td");
+    action.innerHTML=`<div class="table-action"><button class="edit-btn" onclick="saveAdminRow(${index})">Save</button><button class="delete-btn" onclick="deleteAdminRow(${index})">Delete</button></div>`;
+    tr.appendChild(action);
+    rows.appendChild(tr);
+  });
+}
+function saveAdminRow(index){
+  const rows=document.querySelectorAll("#adminRecordsRows tr");
+  const row=rows[index];
+  if(!row)return;
+  const values=[...row.querySelectorAll("input,select")].map(x=>x.value).slice(0,16);
+  const data=getUserData(selectedAdminUser);
+  data[index]=values;
+  localStorage.setItem(STORAGE_PREFIX+selectedAdminUser,JSON.stringify(data));
+  logActivity(ADMIN_USERNAME,"Admin formatted/edited student",`User: ${selectedAdminUser}; Record: ${index+1}`);
+  renderAdminRecords();refreshAdmin();
+  alert("Student record updated.");
+}
+function deleteAdminRow(index){
+  if(!confirm("Delete this submitted student record?"))return;
+  const data=getUserData(selectedAdminUser);
+  data.splice(index,1);
+  if(data.length) localStorage.setItem(STORAGE_PREFIX+selectedAdminUser,JSON.stringify(data));
+  else localStorage.removeItem(STORAGE_PREFIX+selectedAdminUser);
+  logActivity(ADMIN_USERNAME,"Admin deleted student",`User: ${selectedAdminUser}; Record: ${index+1}`);
+  renderAdminRecords();refreshAdmin();
+}
+function deleteUser(encoded){
+  const username=decodeURIComponent(encoded);
+  if(!confirm(`Delete ALL submitted records for "${username}"? This cannot be undone.`))return;
+  localStorage.removeItem(STORAGE_PREFIX+username);
+  logActivity(ADMIN_USERNAME,"Admin deleted user data","User: "+username);
+  refreshAdmin();
+}
+function clearAdminLogs(){
+  if(!confirm("Clear the complete activity log?"))return;
+  localStorage.removeItem(LOG_KEY);
+  refreshAdmin();
+}
+function downloadAllUsersSummary(){
+  const users=getUsernames();
+  const data=users.map(u=>[u,getUserData(u).length,(getLogs().find(l=>l.username===u)||{}).time||""]);
+  const ws=XLSX.utils.aoa_to_sheet([["Username","Number of Records","Last Activity"],...data]);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,"Users");
+  XLSX.writeFile(wb,"SRCOE_NELFUND_Users_Summary.xlsx");
+  logActivity(ADMIN_USERNAME,"Admin downloaded summary","All users summary");
+}
+
+window.addEventListener("click",e=>{
+  if(e.target.classList.contains("modal")) e.target.classList.remove("show");
+});
+let heroSlideIndex=0;
+function showHeroSlide(index){const slides=document.querySelectorAll(".hero-slide"),dots=document.querySelectorAll(".hero-dot");if(!slides.length)return;heroSlideIndex=(index+slides.length)%slides.length;slides.forEach((x,i)=>x.classList.toggle("active",i===heroSlideIndex));dots.forEach((x,i)=>x.classList.toggle("active",i===heroSlideIndex));}
+setInterval(()=>showHeroSlide(heroSlideIndex+1),5000);
+
+</script>
+</body>
+</html>
